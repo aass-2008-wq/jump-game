@@ -7,14 +7,14 @@
 <style>
   body {
     margin: 0;
-    background: #1a1a1a;
+    background: #2c2c2c;
     font-family: "Cairo", sans-serif;
   }
 
   #game {
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(#111, #3a2a00);
+    background: linear-gradient(#000, #4b3800);
     position: relative;
     overflow: hidden;
   }
@@ -44,9 +44,9 @@
 
   /* اللاعب */
   #player {
-    width: 100px;
-    height: 100px;
-    background-image: url("https://i.postimg.cc/Jn9tjsXX/cartoon-boy.png");
+    width: 90px;
+    height: 90px;
+    background-image: url("https://i.imgur.com/z4d4K4R.png");
     background-size: cover;
     position: absolute;
     bottom: 0;
@@ -55,23 +55,22 @@
 
   /* العقبة */
   #obstacle {
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
     background: black;
     border: 3px solid gold;
     border-radius: 10px;
     position: absolute;
     bottom: 0;
-    right: -100px;
-    animation: move 2s linear infinite;
+    right: -120px;
+    animation: move 2.2s linear infinite;
   }
 
   @keyframes move {
-    0% { right: -100px; }
+    0% { right: -120px; }
     100% { right: 110%; }
   }
 
-  /* النقاط */
   #score {
     position: absolute;
     top: 10px;
@@ -93,8 +92,8 @@
     border-radius: 10px;
     display: none;
     z-index: 1000;
+    cursor: pointer;
   }
-
 </style>
 
 </head>
@@ -116,17 +115,20 @@
 
 </div>
 
+<audio id="jumpSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_b753b7ec45.mp3"></audio>
+
 <script>
 
 let jumping = false;
 let score = 0;
-let speed = 2;
+let speed = 2.2;
 let gameRunning = false;
 
 let player = document.getElementById("player");
 let obstacle = document.getElementById("obstacle");
 let scoreText = document.getElementById("score");
 let restartBtn = document.getElementById("restartBtn");
+let jumpSound = document.getElementById("jumpSound");
 let startScreen = document.getElementById("startScreen");
 
 function startGame() {
@@ -141,6 +143,8 @@ function restart() {
 function jump() {
   if (!gameRunning || jumping) return;
   jumping = true;
+
+  jumpSound.play();
 
   let up = 0;
 
@@ -179,7 +183,7 @@ setInterval(() => {
   ) {
     gameRunning = false;
     restartBtn.style.display = "block";
-    alert("🎉 انتهت اللعبة!\nنتيجتك: " + score + "\n📸 صوّر درجتك!");
+    alert("انتهت اللعبة!\nنتيجتك: " + score + "\n📸 صوّر درجتك!");
   }
 }, 20);
 
