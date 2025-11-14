@@ -6,96 +6,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: "Cairo", sans-serif;
-      background: #f4e7c3; /* خلفية ذهبية فاتحة */
-      color: #543b00;
+      background: #f4e7c3;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      color: #543b00;
     }
 
     #game {
       width: 100vw;
       max-width: 430px;
-      aspect-ratio: 9 / 16;
+      aspect-ratio: 9/16;
       background: linear-gradient(#fff8e3, #f5d892);
       border: 3px solid #c9a341;
       border-radius: 18px;
-      position: relative;
       overflow: hidden;
-      box-shadow: 0 0 20px rgba(180, 150, 60, 0.4);
+      position: relative;
+      box-shadow: 0 0 20px rgba(180,150,60,0.4);
     }
 
     /* شريط علوي */
     #hud {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
       height: 70px;
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(255,255,255,0.6);
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       padding: 0 15px;
       color: #7a5200;
       font-weight: bold;
       z-index: 3;
     }
 
-    #title {
-      font-size: 17px;
-      font-weight: 700;
-    }
-
     /* الهدف */
     #target {
-      position: absolute;
       width: 70px;
       height: 70px;
       border-radius: 50%;
       display: none;
-      box-shadow: 0 0 15px rgba(200, 150, 20, 0.7);
-      cursor: pointer;
-      z-index: 1;
-      display: flex;
+      position: absolute;
       justify-content: center;
       align-items: center;
       font-size: 35px;
-      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(200,150,20,0.7);
+      z-index: 1;
     }
 
-    /* الأرض */
+    /* الأرضية */
     #ground {
       position: absolute;
+      bottom: 0;
       left: 0;
       right: 0;
-      bottom: 0;
       height: 85px;
       background: #e6c980;
       border-top: 3px solid #b89030;
     }
 
-    /* نص الإعداد */
-    #footer {
-      position: absolute;
-      bottom: 8px;
-      width: 100%;
-      text-align: center;
-      color: #7a5200;
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    /* شاشة البداية والنهاية */
+    /* الشاشات */
     .overlay {
       position: absolute;
       inset: 0;
@@ -103,8 +77,8 @@
       backdrop-filter: blur(4px);
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       text-align: center;
       padding: 20px;
       color: #654400;
@@ -112,10 +86,10 @@
     }
 
     .overlay button {
-      margin-top: 20px;
-      padding: 12px 28px;
+      margin-top: 18px;
+      padding: 12px 26px;
       font-size: 18px;
-      font-weight: 700;
+      font-weight: bold;
       border-radius: 10px;
       border: none;
       background: #d4a63f;
@@ -124,16 +98,14 @@
       box-shadow: 0 0 8px rgba(150,110,20,0.5);
     }
 
-    #gameOver {
-      display: none;
-    }
+    #gameOver { display: none; }
   </style>
 </head>
 <body>
 
 <div id="game">
 
-  <!-- شريط المعلومات -->
+  <!-- HUD -->
   <div id="hud">
     <div id="title">اضغط الهدف ⭐</div>
     <div id="time">الوقت: 30</div>
@@ -143,17 +115,17 @@
   <!-- الهدف -->
   <div id="target"><span>⭐</span></div>
 
-  <!-- الأرضية -->
+  <!-- أرض -->
   <div id="ground"></div>
-
-  <!-- نص الإعداد -->
-  <div id="footer">إعداد الأستاذ مقرن المطيري</div>
 
   <!-- شاشة البداية -->
   <div id="startScreen" class="overlay">
     <h1>لعبة اضغط الهدف ⭐</h1>
-    <p>الهدف يتغير لونه وشكله كل مرة 🎨</p>
-    <p>كل 10 نقاط ترتفع للمستوى التالي 🔥</p>
+    <p>اضغط على الهدف قبل أن يختفي.</p>
+    <p>كل 10 نقاط → المستوى التالي 🔥</p>
+    <p style="margin-top:10px;font-size:14px;color:#8a6500;">
+      إعداد الأستاذ مقرن المطيري
+    </p>
     <button onclick="startGame()">ابدأ اللعب</button>
   </div>
 
@@ -183,33 +155,29 @@
   let gameRunning = false;
   let timerId = null;
 
-  /* الألوان المتغيرة للهدف */
-  const colors = [
-    "#fbbf24", "#ef4444", "#3b82f6", "#10b981", "#a855f7"
-  ];
+  /* ألوان وأشكال الهدف */
+  const colors = ["#fbbf24","#ef4444","#3b82f6","#10b981","#a855f7"];
+  const emojis = ["⭐","💎","🔥","⚡","🎯"];
 
-  const emojis = ["⭐", "💎", "🔥", "⚡", "🎯"];
-
-  function changeTargetStyle() {
+  function styleTarget() {
     const color = colors[Math.floor(Math.random() * colors.length)];
     const emoji = emojis[Math.floor(Math.random() * emojis.length)];
 
     target.style.background = color;
-    target.querySelector("span").textContent = emoji;
+    target.innerHTML = `<span>${emoji}</span>`;
   }
 
   function moveTarget() {
-    const gameRect = game.getBoundingClientRect();
-    const hudHeight = 70;
+    const r = game.getBoundingClientRect();
     const size = target.offsetWidth;
 
-    const x = Math.random() * (gameRect.width - size - 20) + 10;
-    const y = Math.random() * (gameRect.height - size - 150) + hudHeight + 10;
+    const x = Math.random() * (r.width - size - 20) + 10;
+    const y = Math.random() * (r.height - size - 150) + 80;
 
     target.style.left = x + "px";
     target.style.top  = y + "px";
 
-    changeTargetStyle();
+    styleTarget();
   }
 
   function startGame() {
@@ -232,10 +200,7 @@
     timerId = setInterval(() => {
       timeLeft--;
       timeEl.textContent = "الوقت: " + timeLeft;
-
-      if (timeLeft <= 0) {
-        endGame();
-      }
+      if (timeLeft <= 0) endGame();
     }, 1000);
   }
 
@@ -259,11 +224,7 @@
     scoreEl.textContent = "النتيجة: " + score;
     moveTarget();
 
-    /* مستويات اللعبة */
-    if (score % 10 === 0) {
-      level++;
-      game.style.borderColor = colors[(level - 1) % colors.length];
-    }
+    if (score % 10 === 0) level++;
   });
 </script>
 
