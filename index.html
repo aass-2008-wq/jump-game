@@ -2,198 +2,282 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>اللعبة الذهبية</title>
+<title>العدّاء الذهبي</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
   body {
     margin: 0;
-    background: #2c2c2c;
     font-family: "Cairo", sans-serif;
+    background: #111;
+    color: #fff;
   }
 
   #game {
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(#000, #4b3800);
+    background: linear-gradient(#1a1a1a, #3b2a00);
     position: relative;
     overflow: hidden;
   }
 
-  /* شاشة البداية */
-  #startScreen {
+  /* شريط أعلى للعنوان والنتيجة */
+  #hud {
     position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 60px;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 3;
+  }
+
+  #title {
+    font-size: 18px;
     color: gold;
-    z-index: 999;
-  }
-
-  #startScreen button {
-    padding: 15px 35px;
-    background: gold;
-    border: none;
-    border-radius: 10px;
-    font-size: 26px;
     font-weight: bold;
-    cursor: pointer;
   }
 
-  /* اللاعب */
-  #player {
-    width: 90px;
-    height: 90px;
-    background-image: url("https://i.imgur.com/z4d4K4R.png");
-    background-size: cover;
+  #score {
+    font-size: 20px;
+    color: gold;
+    font-weight: bold;
+  }
+
+  /* الأرض */
+  #ground {
     position: absolute;
+    left: 0;
+    right: 0;
     bottom: 0;
-    left: 60px;
+    height: 80px;
+    background: #201500;
+    border-top: 3px solid gold;
+  }
+
+  /* اللاعب – دائرة ذهبية فيها إيموجي */
+  #player {
+    width: 70px;
+    height: 70px;
+    position: absolute;
+    bottom: 80px; /* فوق الأرض */
+    left: 40px;
+    background: #000;
+    border: 3px solid gold;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  #player span {
+    pointer-events: none;
   }
 
   /* العقبة */
   #obstacle {
-    width: 55px;
-    height: 55px;
-    background: black;
-    border: 3px solid gold;
-    border-radius: 10px;
+    width: 40px;
+    height: 60px;
     position: absolute;
-    bottom: 0;
-    right: -120px;
-    animation: move 2.2s linear infinite;
+    bottom: 80px;
+    right: -80px;
+    background: #000;
+    border: 3px solid gold;
+    border-radius: 8px;
+    animation: move 2s linear infinite;
+    animation-play-state: paused; /* تبدأ متوقفة */
   }
 
   @keyframes move {
-    0% { right: -120px; }
+    0%   { right: -80px; }
     100% { right: 110%; }
   }
 
-  #score {
+  /* شاشة البداية والنهاية (نفس الشكل تقريبًا) */
+  .overlay {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     color: gold;
-    font-size: 28px;
     z-index: 5;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
   }
 
-  #restartBtn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 15px 30px;
-    background: gold;
+  .overlay h1 {
+    margin-bottom: 10px;
+  }
+
+  .overlay p {
+    margin: 5px 0;
+  }
+
+  .overlay button {
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-size: 20px;
+    font-weight: bold;
     border: none;
-    font-size: 24px;
     border-radius: 10px;
-    display: none;
-    z-index: 1000;
+    background: gold;
+    color: #000;
     cursor: pointer;
   }
-</style>
 
+  #gameOver {
+    display: none;
+  }
+</style>
 </head>
 <body>
 
 <div id="game">
 
-  <div id="startScreen">
-    <h1>اللعبة الذهبية</h1>
+  <!-- HUD -->
+  <div id="hud">
+    <div id="title">العدّاء الذهبي</div>
+    <div id="score">النتيجة: 0</div>
+  </div>
+
+  <!-- شاشة البداية -->
+  <div id="startScreen" class="overlay">
+    <h1>العدّاء الذهبي</h1>
+    <p>اضغط زر "ابدأ" ثم اضغط على الشاشة أو زر المسافة للقفز.</p>
+    <p>تجنّب العوائق واجمع أكبر عدد من النقاط.</p>
     <button onclick="startGame()">ابدأ اللعب</button>
   </div>
 
-  <div id="player"></div>
+  <!-- شاشة نهاية اللعبة -->
+  <div id="gameOver" class="overlay">
+    <h1>انتهت اللعبة!</h1>
+    <p id="finalScoreText"></p>
+    <p>📸 صوّر درجتك وشارك أصحابك!</p>
+    <button onclick="restartGame()">إعادة اللعب</button>
+  </div>
+
+  <!-- اللاعب والعقبة والأرض -->
+  <div id="player"><span>🧒</span></div>
   <div id="obstacle"></div>
-
-  <div id="score">النتيجة: 0</div>
-
-  <button id="restartBtn" onclick="restart()">إعادة اللعب</button>
+  <div id="ground"></div>
 
 </div>
 
-<audio id="jumpSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_b753b7ec45.mp3"></audio>
-
 <script>
+  const player     = document.getElementById("player");
+  const obstacle   = document.getElementById("obstacle");
+  const scoreText  = document.getElementById("score");
+  const startScreen = document.getElementById("startScreen");
+  const gameOver    = document.getElementById("gameOver");
+  const finalScoreText = document.getElementById("finalScoreText");
 
-let jumping = false;
-let score = 0;
-let speed = 2.2;
-let gameRunning = false;
+  let jumping     = false;
+  let score       = 0;
+  let speed       = 2;      // مدة حركة العقبة
+  let gameRunning = false;
 
-let player = document.getElementById("player");
-let obstacle = document.getElementById("obstacle");
-let scoreText = document.getElementById("score");
-let restartBtn = document.getElementById("restartBtn");
-let jumpSound = document.getElementById("jumpSound");
-let startScreen = document.getElementById("startScreen");
-
-function startGame() {
-  startScreen.style.display = "none";
-  gameRunning = true;
-}
-
-function restart() {
-  location.reload();
-}
-
-function jump() {
-  if (!gameRunning || jumping) return;
-  jumping = true;
-
-  jumpSound.play();
-
-  let up = 0;
-
-  let interval = setInterval(() => {
-    if (up >= 130) {
-      clearInterval(interval);
-
-      let downInterval = setInterval(() => {
-        if (up <= 0) {
-          clearInterval(downInterval);
-          jumping = false;
-        }
-        up -= 6;
-        player.style.bottom = up + "px";
-      }, 20);
-
-    }
-    up += 6;
-    player.style.bottom = up + "px";
-  }, 20);
-}
-
-document.addEventListener("keydown", jump);
-document.addEventListener("touchstart", jump);
-
-setInterval(() => {
-  if (!gameRunning) return;
-
-  let p = player.getBoundingClientRect();
-  let o = obstacle.getBoundingClientRect();
-
-  if (
-    p.right > o.left &&
-    p.left < o.right &&
-    p.bottom > o.top
-  ) {
-    gameRunning = false;
-    restartBtn.style.display = "block";
-    alert("انتهت اللعبة!\nنتيجتك: " + score + "\n📸 صوّر درجتك!");
+  function startGame() {
+    score = 0;
+    speed = 2;
+    scoreText.textContent = "النتيجة: 0";
+    startScreen.style.display = "none";
+    gameOver.style.display = "none";
+    gameRunning = true;
+    obstacle.style.animationDuration = speed + "s";
+    obstacle.style.animationPlayState = "running";
   }
-}, 20);
 
-obstacle.addEventListener("animationiteration", () => {
-  if (!gameRunning) return;
+  function restartGame() {
+    // رجوع اللاعب للأرض
+    player.style.bottom = "80px";
+    jumping = false;
+    startGame();
+  }
 
-  score++;
-  scoreText.textContent = "النتيجة: " + score;
-});
+  function endGame() {
+    gameRunning = false;
+    obstacle.style.animationPlayState = "paused";
+    finalScoreText.textContent = "درجتك: " + score;
+    gameOver.style.display = "flex";
+  }
 
+  // حركة القفز
+  function jump() {
+    if (!gameRunning || jumping) return;
+    jumping = true;
+
+    let currentBottom = parseInt(window.getComputedStyle(player).bottom); // 80
+    let maxJump = currentBottom + 130; // ارتفاع القفزة
+
+    let upInterval = setInterval(() => {
+      let bottom = parseInt(window.getComputedStyle(player).bottom);
+      if (bottom >= maxJump) {
+        clearInterval(upInterval);
+
+        // نزول
+        let downInterval = setInterval(() => {
+          let b = parseInt(window.getComputedStyle(player).bottom);
+          if (b <= 80) {
+            player.style.bottom = "80px";
+            clearInterval(downInterval);
+            jumping = false;
+          } else {
+            player.style.bottom = (b - 6) + "px";
+          }
+        }, 16);
+      } else {
+        player.style.bottom = (bottom + 6) + "px";
+      }
+    }, 16);
+  }
+
+  // تحكم: لمس أو كيبورد
+  document.addEventListener("touchstart", jump);
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space" || e.code === "ArrowUp") {
+      jump();
+    }
+  });
+
+  // كشف الاصطدام
+  setInterval(() => {
+    if (!gameRunning) return;
+
+    const p = player.getBoundingClientRect();
+    const o = obstacle.getBoundingClientRect();
+
+    if (
+      p.right > o.left &&
+      p.left < o.right &&
+      p.bottom > o.top &&
+      p.top < o.bottom
+    ) {
+      endGame();
+    }
+  }, 20);
+
+  // زيادة النقاط والسرعة
+  obstacle.addEventListener("animationiteration", () => {
+    if (!gameRunning) return;
+    score++;
+    scoreText.textContent = "النتيجة: " + score;
+
+    if (score % 5 === 0) {
+      speed -= 0.15;
+      if (speed < 0.8) speed = 0.8;
+      obstacle.style.animationDuration = speed + "s";
+    }
+  });
 </script>
 
 </body>
