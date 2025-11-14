@@ -7,14 +7,14 @@
 <style>
   body {
     margin: 0;
-    overflow: hidden;
-    background: linear-gradient(#000, #3a2a00, #000);
+    background: #1a1a1a;
     font-family: "Cairo", sans-serif;
   }
 
   #game {
     width: 100vw;
     height: 100vh;
+    background: linear-gradient(#111, #3a2a00);
     position: relative;
     overflow: hidden;
   }
@@ -23,14 +23,13 @@
   #startScreen {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.9);
+    background: rgba(0,0,0,0.85);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     color: gold;
-    z-index: 9999;
-    text-align: center;
+    z-index: 999;
   }
 
   #startScreen button {
@@ -40,34 +39,15 @@
     border-radius: 10px;
     font-size: 26px;
     font-weight: bold;
-    margin-top: 20px;
     cursor: pointer;
   }
 
-  /* زر إعادة اللعب */
-  #restartBtn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 15px 35px;
-    background: gold;
-    border: none;
-    font-size: 25px;
-    font-weight: bold;
-    border-radius: 10px;
-    cursor: pointer;
-    z-index: 10000;
-    display: none;
-  }
-
-  /* اللاعب — صورة جديدة تعمل 100% */
+  /* اللاعب */
   #player {
-    width: 85px;
-    height: 85px;
-    background-image: url("https://i.postimg.cc/8cC6G1LT/player.png");
+    width: 100px;
+    height: 100px;
+    background-image: url("https://i.postimg.cc/Jn9tjsXX/cartoon-boy.png");
     background-size: cover;
-    background-repeat: no-repeat;
     position: absolute;
     bottom: 0;
     left: 60px;
@@ -77,50 +57,46 @@
   #obstacle {
     width: 60px;
     height: 60px;
-    background: #000;
+    background: black;
     border: 3px solid gold;
     border-radius: 10px;
     position: absolute;
     bottom: 0;
-    right: -120px;
+    right: -100px;
     animation: move 2s linear infinite;
   }
 
   @keyframes move {
-    0% { right: -120px; }
+    0% { right: -100px; }
     100% { right: 110%; }
   }
 
+  /* النقاط */
   #score {
     position: absolute;
-    top: 15px;
-    left: 15px;
-    font-size: 32px;
+    top: 10px;
+    left: 10px;
     color: gold;
-    font-weight: bold;
-    text-shadow: 0 0 8px #000;
+    font-size: 28px;
     z-index: 5;
   }
 
-  #logo {
+  #restartBtn {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 90px;
-    z-index: 5;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 30px;
+    background: gold;
+    border: none;
+    font-size: 24px;
+    border-radius: 10px;
+    display: none;
+    z-index: 1000;
   }
 
-  #footer {
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    text-align: center;
-    color: gold;
-    font-size: 20px;
-    text-shadow: 0 0 8px black;
-    z-index: 5;
-  }
 </style>
+
 </head>
 <body>
 
@@ -128,103 +104,92 @@
 
   <div id="startScreen">
     <h1>اللعبة الذهبية</h1>
-    <h2>نطّ الحبل – إصدار خاص</h2>
     <button onclick="startGame()">ابدأ اللعب</button>
   </div>
-
-  <button id="restartBtn" onclick="restart()">إعادة اللعب</button>
-
-  <img id="logo" src="https://i.postimg.cc/Lhdfcttc/IMG-7700.jpg">
 
   <div id="player"></div>
   <div id="obstacle"></div>
 
   <div id="score">النتيجة: 0</div>
-  <div id="footer">إعداد الأستاذ مقرن المطيري</div>
+
+  <button id="restartBtn" onclick="restart()">إعادة اللعب</button>
+
 </div>
 
-<audio id="jumpSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_b753b7ec45.mp3"></audio>
-
 <script>
-  let player = document.getElementById("player");
-  let obstacle = document.getElementById("obstacle");
-  let scoreText = document.getElementById("score");
-  let jumpSound = document.getElementById("jumpSound");
-  let restartBtn = document.getElementById("restartBtn");
-  let startScreen = document.getElementById("startScreen");
 
-  let jumping = false;
-  let score = 0;
-  let speed = 2;
-  let gameRunning = false;
+let jumping = false;
+let score = 0;
+let speed = 2;
+let gameRunning = false;
 
-  function startGame() {
-    startScreen.style.display = "none";
-    gameRunning = true;
-  }
+let player = document.getElementById("player");
+let obstacle = document.getElementById("obstacle");
+let scoreText = document.getElementById("score");
+let restartBtn = document.getElementById("restartBtn");
+let startScreen = document.getElementById("startScreen");
 
-  function restart() {
-    location.reload();
-  }
+function startGame() {
+  startScreen.style.display = "none";
+  gameRunning = true;
+}
 
-  function jump() {
-    if (!gameRunning || jumping) return;
-    jumping = true;
+function restart() {
+  location.reload();
+}
 
-    jumpSound.play();
+function jump() {
+  if (!gameRunning || jumping) return;
+  jumping = true;
 
-    let up = 0;
-    let interval = setInterval(() => {
-      if (up >= 140) {
-        clearInterval(interval);
+  let up = 0;
 
-        let downInterval = setInterval(() => {
-          if (up <= 0) {
-            clearInterval(downInterval);
-            jumping = false;
-          }
-          up -= 6;
-          player.style.bottom = up + "px";
-        }, 20);
+  let interval = setInterval(() => {
+    if (up >= 130) {
+      clearInterval(interval);
 
-      }
-      up += 6;
-      player.style.bottom = up + "px";
-    }, 20);
-  }
+      let downInterval = setInterval(() => {
+        if (up <= 0) {
+          clearInterval(downInterval);
+          jumping = false;
+        }
+        up -= 6;
+        player.style.bottom = up + "px";
+      }, 20);
 
-  setInterval(() => {
-    if (!gameRunning) return;
-
-    let p = player.getBoundingClientRect();
-    let o = obstacle.getBoundingClientRect();
-
-    if (
-      p.right > o.left &&
-      p.left < o.right &&
-      p.bottom > o.top
-    ) {
-      gameRunning = false;
-      restartBtn.style.display = "block";
-      alert("🎉 انتهت اللعبة!\nنتيجتك: " + score + "\n📸 صوّر درجتك!");
     }
-  }, 10);
+    up += 6;
+    player.style.bottom = up + "px";
+  }, 20);
+}
 
-  obstacle.addEventListener("animationiteration", () => {
-    if (!gameRunning) return;
+document.addEventListener("keydown", jump);
+document.addEventListener("touchstart", jump);
 
-    score++;
-    scoreText.textContent = "النتيجة: " + score;
+setInterval(() => {
+  if (!gameRunning) return;
 
-    if (score % 5 === 0) {
-      speed -= 0.1;
-      if (speed < 0.7) speed = 0.7;
-      obstacle.style.animationDuration = speed + "s";
-    }
-  });
+  let p = player.getBoundingClientRect();
+  let o = obstacle.getBoundingClientRect();
 
-  document.addEventListener("keydown", jump);
-  document.addEventListener("touchstart", jump);
+  if (
+    p.right > o.left &&
+    p.left < o.right &&
+    p.bottom > o.top
+  ) {
+    gameRunning = false;
+    restartBtn.style.display = "block";
+    alert("🎉 انتهت اللعبة!\nنتيجتك: " + score + "\n📸 صوّر درجتك!");
+  }
+}, 20);
+
+obstacle.addEventListener("animationiteration", () => {
+  if (!gameRunning) return;
+
+  score++;
+  scoreText.textContent = "النتيجة: " + score;
+});
+
 </script>
 
 </body>
